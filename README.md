@@ -222,6 +222,20 @@ The full installation includes everything from minimal plus:
 
 ### Post-Installation Automation Flow
 
+The setup creates the following files on the target filesystem:
+```
+├── /etc
+  └── /systemd
+     └── /system
+        └── first-boot.service     # Runs first_boot.sh once it detects internet connection
+├── /opt
+  └── /setup
+     └── first_boot.sh             # Installs ansible and runs the playbook, then disables first-boot.service
+  └── /ansible
+     └── setup_playbook.yml        # Main source of customization
+```
+
+The process is as follows:
 1. **System Boot**: After installation, the system reboots and triggers the first-boot service
 2. **Connectivity Check**: Verifies internet connection before proceeding. Retries every 10 seconds until it detects internet connection.
 3. **User Notification**: Displays desktop notifications about setup progress
@@ -366,6 +380,7 @@ Before using in production, update these placeholders in `autoinstall-full.yaml`
 ## Security Considerations
 
 - **Change default LUKS password** before production use
+- **Edit the yaml templates** to suit your requirements
 - **Replace all placeholder tokens** with actual values
 - **Audit installed software** for your security requirements
 - **Test in isolated environment** before production deployment
