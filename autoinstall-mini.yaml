@@ -1,0 +1,23 @@
+#cloud-config
+autoinstall:
+  version: 1
+  timezone: {{TIMEZONE}}
+  codecs:
+    install: true
+  drivers:
+    install: true
+  oem:
+    install: true
+  storage:
+    layout:
+      name: lvm
+      sizing-policy: all
+      password: "{{LUKS_PASSWORD}}"
+  locale: {{LOCALE}}
+  keyboard:
+    layout: {{KEYBOARD_LAYOUT}}
+    variant: ""
+  packages: []
+  snaps: []
+  updates: security
+  shutdown: poweroff
