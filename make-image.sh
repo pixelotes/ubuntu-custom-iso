@@ -106,20 +106,19 @@ chmod -R u+w ${UNPACKED_IMAGE_PATH}
 
 sed -i "s/Ubuntu/${COMPANY_NAME} OEM/g" ${UNPACKED_IMAGE_PATH}boot/grub/grub.cfg
 
-# Select the appropriate autoinstall file based on type
+# Select the appropriate autoinstall content based on type
 if [[ "$TYPE" == "full" ]]; then
-    AUTOINSTALL_SOURCE="autoinstall-full.yaml"
+    AUTOINSTALL_CONTENT=$(cat autoinstall.yaml late-commands.yaml)
 else
-    AUTOINSTALL_SOURCE="autoinstall.yaml"
+    AUTOINSTALL_CONTENT=$(cat autoinstall.yaml)
 fi
 
 # Generate autoinstall.yaml with variable substitution
-sed -e "s/{{LUKS_PASSWORD}}/${LUKS_PASSWORD}/g" \
+echo "$AUTOINSTALL_CONTENT" | sed -e "s/{{LUKS_PASSWORD}}/${LUKS_PASSWORD}/g" \
     -e "s/{{KEYBOARD_LAYOUT}}/${KEYBOARD_LAYOUT}/g" \
     -e "s/{{LOCALE}}/${LOCALE}/g" \
     -e "s/{{COMPANY_NAME}}/${COMPANY_NAME}/g" \
-    -e "s|{{TIMEZONE}}|${TIMEZONE}|g" \
-    "${AUTOINSTALL_SOURCE}" > "${UNPACKED_IMAGE_PATH}autoinstall.yaml"
+    -e "s|{{TIMEZONE}}|${TIMEZONE}|g" > "${UNPACKED_IMAGE_PATH}autoinstall.yaml"
 
 # Fix for the timezone, as it contains forward slashes
 #sed -e "s|{{TIMEZONE}}|\"${TIMEZONE}\"|g" "${UNPACKED_IMAGE_PATH}autoinstall.yaml" > "${UNPACKED_IMAGE_PATH}autoinstall2.yaml"
