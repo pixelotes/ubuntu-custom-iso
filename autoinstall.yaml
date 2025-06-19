@@ -27,3 +27,4 @@ autoinstall:
   snaps: []
   updates: security
   shutdown: poweroff
+  
