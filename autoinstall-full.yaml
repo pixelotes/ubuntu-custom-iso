@@ -152,7 +152,7 @@ autoinstall:
           - name: Enable unattended-upgrades
             command: dpkg-reconfigure -f noninteractive unattended-upgrades
 
-                    - name: Attach Ubuntu to Ubuntu Pro
+          - name: Attach Ubuntu to Ubuntu Pro
             shell: |
               pro attach <UBUNTU_PRO_TOKEN>
             register: pro_attach
