@@ -14,6 +14,8 @@ autoinstall:
     install: true
   oem:
     install: true
+  kernel:
+    flavor: hwe
   keyboard:
     layout: "{{KEYBOARD_LAYOUT}}"
     variant: ""
@@ -27,4 +29,4 @@ autoinstall:
   snaps: []
   updates: security
   shutdown: poweroff
-  
+  user-data: {}
