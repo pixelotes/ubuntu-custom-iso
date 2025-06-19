@@ -15,9 +15,10 @@ The script downloads an official Ubuntu ISO, customizes it with your autoinstall
 
 ```
 ├── make-image.sh           # Main script to create custom ISOs
-├── autoinstall-full.yaml   # Full installation with post-install automation
-├── autoinstall-mini.yaml   # Minimal installation configuration
-└── README.md              # This documentation
+├── autoinstall.yaml        # Minimal installation configuration
+├── late-commands.yaml      # Custom commands to be run after install
+├── LICENSE                 # The license for this repo
+└── README.md               # This documentation
 ```
 
 ## Quick Start
@@ -45,13 +46,13 @@ Create a minimal custom ISO:
 Create a full enterprise ISO with custom settings:
 ```bash
 ./make-image.sh \
-  --type full \
   --lang en \
   --luks-password "YourSecurePassword123" \
   --keyboard-layout us \
   --locale "en_US.UTF-8" \
   --company-name "YourCompany" \
   --ubuntu-version "24.04.2" \
+  --late-commands \
   --timezone "America/New_York"
 ```
 
@@ -59,7 +60,6 @@ Create a full enterprise ISO with custom settings:
 
 | Parameter | Description | Default | Options |
 |-----------|-------------|---------|---------|
-| `--type` | Installation type | `minimal` | `minimal`, `full` |
 | `--lang` | Language | `en` | `en`, `es` |
 | `--luks-password` | LUKS encryption password | `mysupersecret` | Any string |
 | `--keyboard-layout` | Keyboard layout | `en` | Standard layouts (us, es, fr, etc.) |
@@ -69,10 +69,11 @@ Create a full enterprise ISO with custom settings:
 | `--timezone` | System timezone | `Europe/London` | TZ database timezones |
 | `--arch` | Architecture | `amd64` | `amd64`, `arm64`, `ppc64el` |
 | `--edition` | Ubuntu edition | `desktop` | `desktop`, `server` |
+| `--late-commands` | Include late commands | - | - |
 
 ## Installation Types
 
-### Minimal Installation (`autoinstall-mini.yaml`)
+### Minimal Installation (`autoinstall.yaml`)
 
 The minimal installation provides:
 - Base Ubuntu system with desktop environment
@@ -86,7 +87,7 @@ The minimal installation provides:
 - Systems requiring manual post-install configuration
 - Testing and development environments
 
-### Full Installation (`autoinstall-full.yaml`)
+### Full Installation (`autoinstall.yaml` + `late-commands.yaml`)
 
 # Ubuntu Custom ISO Builder
 
