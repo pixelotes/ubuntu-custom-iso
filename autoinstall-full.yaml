@@ -17,6 +17,9 @@ autoinstall:
     preserve_sources_list: true
   source:
     id: ubuntu-desktop
+  packages: []
+  snaps: []
+  updates: security
   shutdown: poweroff
   late-commands:
     # Create directory structure
