@@ -34,6 +34,7 @@ show_help() {
     echo "  --timezone TIMEZONE      Set the timezone. Default: Europe/London"
     echo "  --arch ARCH              Set the architecture. Default: amd64"
     echo "  --edition EDITION        Set the edition (desktop or server). Default: desktop"
+    echo "  --late-commands          Adds the contents of \"late-commands.yaml\" to the autoinstall file"
     echo "  --help                   Display this help message and exit"
     echo
     echo "Example:"
@@ -43,7 +44,6 @@ show_help() {
 # Parse command line arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --type) TYPE="$2"; shift ;;
         --lang) LANG="$2"; shift ;;
         --luks-password) LUKS_PASSWORD="$2"; shift ;;
         --keyboard-layout) KEYBOARD_LAYOUT="$2"; shift ;;
@@ -52,6 +52,7 @@ while [[ "$#" -gt 0 ]]; do
         --ubuntu-version) UBUNTU_VERSION="$2"; shift ;;
         --timezone) TIMEZONE="$2"; shift ;;
         --arch) ARCH="$2"; shift ;;
+	--late-commands) TYPE="full"; shift ;;
         --help) show_help; exit 0 ;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
@@ -59,11 +60,6 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Validate input
-if [[ ! "$TYPE" =~ ^(minimal|full)$ ]]; then
-    echo "Invalid type. Must be 'minimal' or 'full'."
-    exit 1
-fi
-
 if [[ ! "$EDITION" =~ ^(desktop|server)$ ]]; then
     echo "Invalid edition. Must be 'desktop' or 'server'."
     exit 1
@@ -114,7 +110,7 @@ sed -i "s/Ubuntu/${COMPANY_NAME} OEM/g" ${UNPACKED_IMAGE_PATH}boot/grub/grub.cfg
 if [[ "$TYPE" == "full" ]]; then
     AUTOINSTALL_SOURCE="autoinstall-full.yaml"
 else
-    AUTOINSTALL_SOURCE="autoinstall-mini.yaml"
+    AUTOINSTALL_SOURCE="autoinstall.yaml"
 fi
 
 # Generate autoinstall.yaml with variable substitution
