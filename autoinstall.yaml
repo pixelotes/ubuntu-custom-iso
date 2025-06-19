@@ -30,3 +30,4 @@ autoinstall:
   updates: security
   shutdown: poweroff
   user-data: {}
+  
