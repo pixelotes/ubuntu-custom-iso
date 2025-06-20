@@ -21,7 +21,7 @@ jobs:
 
     - name: Install Python build toold
       run: |
-        pythom -m pip install --upgrade pip setuptools wheel
+        python -m pip install --upgrade pip setuptools wheel
 
     - name: Clone Subiquity repository
       run: |
