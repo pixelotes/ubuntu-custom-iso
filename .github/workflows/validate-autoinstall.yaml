@@ -21,7 +21,7 @@ jobs:
 
     - name: Install Python build toold
       run: |
-        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install --upgrade pip setuptools wheel jsonschema
 
     - name: Clone Subiquity repository
       run: |
@@ -31,6 +31,16 @@ jobs:
       run: |
         cd subiquity
         make install_deps
+
+    - name: Replace autoinstall.yaml placeholders
+      run: |
+        cp autoinstall.yaml subiquity/
+        cd subiquity
+        sed -i 's/{{TIMEZONE}}/UTC/' ./autoinstall.yaml
+        sed -i 's/{{LUKS_PASSWORD}}/password123/' ./autoinstall.yaml
+        sed -i 's/{{LOCALE}}/en_US.UTF-8/' ./autoinstall.yaml
+        sed -i 's/{{KEYBOARD_LAYOUT}}/us/' ./autoinstall.yaml
+        sed -i 's/{{COMPANY_NAME}}/MyCompany/' ./autoinstall.yaml
 
     - name: Validate autoinstall.yaml
       run: |
