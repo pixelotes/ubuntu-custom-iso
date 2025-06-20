@@ -26,7 +26,6 @@ jobs:
     - name: Clone Subiquity repository
       run: |
         git clone https://github.com/canonical/subiquity.git
-        cd subiquity
 
     - name: Install dependencies
       run: |
@@ -36,7 +35,7 @@ jobs:
     - name: Validate autoinstall.yaml
       run: |
         cd subiquity
-        ./scripts/validate-autoinstall-user-data.py ../autoinstall.yaml
+        scripts/validate-autoinstall-user-data.py ../autoinstall.yaml
 
     - name: Validation successful
       run: echo "✅ Autoinstall configuration validated successfully!"
