@@ -2,6 +2,10 @@
 
 This repository contains scripts to create custom Ubuntu ISO images with automated installation capabilities. The tool supports both minimal and full installations with enterprise-grade features including LUKS encryption, automated software deployment, and system management integration.
 
+
+> [!WARNING]  
+> Ubuntu Desktop 24.04 has a bug that will crash the installer when using an autoinstall file. The workaround is to close the installer, open a terminal and run the command `sudo snap refresh`. After this, the installer should work if launched again. This operation requires internet connection, making impossible to perform air-gapped installs with this image.
+
 ## Overview
 
 The script downloads an official Ubuntu ISO, customizes it with your autoinstall configuration, and creates a new ISO that can perform unattended installations. This is particularly useful for:
