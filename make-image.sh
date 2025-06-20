@@ -79,6 +79,7 @@ echo "Creating custom Ubuntu ISO"
 
 # Basic parameters
 DEVICE="${COMPANY_NAME,,}"  # Convert to lowercase
+
 # Parse version components
 if [[ "$UBUNTU_VERSION" =~ ^([0-9]+\.[0-9]+)(\.[0-9]+)?$ ]]; then
     UBUNTU_RELEASE="${BASH_REMATCH[1]}"
@@ -90,12 +91,14 @@ fi
 RELEASE_ISO_FILENAME="ubuntu-${UBUNTU_VERSION}-${EDITION}-${ARCH}.iso"
 CUSTOM_ISO_FILENAME="ubuntu-${UBUNTU_VERSION}-${DEVICE}-${TYPE}-${LANG}-${ARCH}.iso"
 DOWNLOAD_URL="https://releases.ubuntu.com/${UBUNTU_RELEASE}/${RELEASE_ISO_FILENAME}"
-GENISO_BOOTIMG="boot/grub/i386-pc/eltorito.img"
-GENISO_BOOTCATALOG="/boot.catalog"
-GENISO_START_SECTOR="$(LANG=C fdisk -l ${RELEASE_ISO_FILENAME} |grep iso2 | cut -d' ' -f2)"
-GENISO_END_SECTOR="$(LANG=C fdisk -l ${RELEASE_ISO_FILENAME} |grep iso2 | cut -d' ' -f3)"
 
 UNPACKED_IMAGE_PATH="./unpacked-iso/"
+
+# Pre-cleanup check
+if [ -d "${UNPACKED_IMAGE_PATH}" ]; then
+    echo "Error. Delete the ${UNPACKED_IMAGE_PATH} directory before running this script again."
+    exit 1
+fi
 
 echo "Checking if $RELEASE_ISO_FILENAME exists..."
 
@@ -103,9 +106,12 @@ if [ -f "${RELEASE_ISO_FILENAME}" ]; then
     echo "Found ${RELEASE_ISO_FILENAME} in the current directory."
 else
     echo "File ${RELEASE_ISO_FILENAME} not found. Trying to download..."
-    
     if ! wget --progress=bar:force --show-progress "${DOWNLOAD_URL}" -O "${RELEASE_ISO_FILENAME}"; then
         echo "Couldn't download the Ubuntu image, please provide your own image with the name ${RELEASE_ISO_FILENAME} and try again"
+        if [ -f "${RELEASE_ISO_FILENAME}" ]; then
+            # Remove the 0-byte file if it exists
+            rm $RELEASE_ISO_FILENAME
+        fi
         exit 1
     else
         echo "Downloaded ${RELEASE_ISO_FILENAME} successfully."
@@ -130,6 +136,11 @@ echo "$AUTOINSTALL_CONTENT" | sed -e "s/{{LUKS_PASSWORD}}/${LUKS_PASSWORD}/g" \
     -e "s/{{LOCALE}}/${LOCALE}/g" \
     -e "s/{{COMPANY_NAME}}/${COMPANY_NAME}/g" \
     -e "s|{{TIMEZONE}}|${TIMEZONE}|g" > "${UNPACKED_IMAGE_PATH}autoinstall.yaml"
+
+GENISO_START_SECTOR="$(LANG=C fdisk -l ${RELEASE_ISO_FILENAME} |grep iso2 | cut -d' ' -f2)"
+GENISO_END_SECTOR="$(LANG=C fdisk -l ${RELEASE_ISO_FILENAME} |grep iso2 | cut -d' ' -f3)"
+GENISO_BOOTIMG="boot/grub/i386-pc/eltorito.img"
+GENISO_BOOTCATALOG="/boot.catalog"
 
 # https://github.com/YasuhiroABE/ub-autoinstall-iso/blob/main/Makefile
 LANG=C xorriso -as mkisofs  \
