@@ -4,7 +4,7 @@ This repository contains scripts to create custom Ubuntu ISO images with automat
 
 
 > [!WARNING]  
-> Ubuntu Desktop 24.04 has a bug that will crash the installer when using an autoinstall file. The workaround is to close the installer, open a terminal and run the command `sudo snap refresh`. After this, the installer should work if launched again. This operation requires internet connection, making impossible to perform air-gapped installs with this image.
+> Ubuntu Desktop 24.04 has a [bug](https://bugs.launchpad.net/subiquity/+bug/2062988) that will crash the installer when using an autoinstall file. The workaround is to close the installer, open a terminal and run the command `sudo snap refresh`. After this, the installer should work if launched again. This operation requires internet connection, making impossible to perform air-gapped installs with this image.
 
 ## Overview
 
