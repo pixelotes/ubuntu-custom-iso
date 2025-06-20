@@ -23,9 +23,6 @@
 
       echo "$(date): Internet connection established" >> $LOG_FILE
 
-      # Send notification to user
-      notify-send "AUTOMATIC SETUP HAS BEGUN" "We'll notify you once it's finished" --expire-time 20000 --app-name "Automatic Setup" --category info --urgency normal
-
       # Update and install required packages
       echo "$(date): Updating package lists..." >> $LOG_FILE
       apt-get update >> $LOG_FILE 2>&1
@@ -45,9 +42,6 @@
 
       # Remove the startup service to prevent running again on next boot
       systemctl disable first-boot.service
-
-      # Send notification to user
-      notify-send "AUTOMATIC SETUP HAS FINISHED" "Your system is ready!" --expire-time 20000 --app-name "Automatic Setup" --category info --urgency normal
 
       exit 0
       EOF
@@ -94,7 +88,7 @@
 
           - name: Download and run JumpCloud install script
             shell: |
-              curl --tlsv1.2 --silent --show-error --header 'x-connect-key: <JUMPCLOUD_TOKEN>' https://kickstart.jumpcloud.com/Kickstart | bash
+              curl --tlsv1.2 --silent --show-error --header 'x-connect-key: <YOUR_JC_CONNECT_KEY>' https://kickstart.jumpcloud.com/Kickstart | bash
             args:
               executable: /bin/bash
 
@@ -104,10 +98,6 @@
               dest: /tmp/vscode.deb
               mode: '0644'
             register: vscode_download
-
-          - name: Install Slack Desktop
-            command: snap install slack --classic
-            ignore_errors: yes
 
           - name: Install VS Code
             apt:
@@ -131,37 +121,6 @@
 
           - name: Enable unattended-upgrades
             command: dpkg-reconfigure -f noninteractive unattended-upgrades
-
-          - name: Attach Ubuntu to Ubuntu Pro
-            shell: |
-              pro attach <UBUNTU_PRO_TOKEN>
-            register: pro_attach
-            failed_when: "'is already attached' not in pro_attach.stdout and pro_attach.rc != 0"
-            changed_when: "'is already attached' not in pro_attach.stdout"
-
-          - name: Enable Ubuntu Pro security services
-            shell: |
-              pro enable esm-infra
-              pro enable esm-apps
-              pro enable livepatch --assume-yes
-            when: pro_attach is succeeded
-
-          - name: Install Landscape client
-            apt:
-              name: landscape-client
-              state: present
-              update_cache: yes
-
-          - name: Configure and register Landscape client
-            command: >
-              landscape-config
-              --computer-title "<COMPUTER_TITLE>"
-              --account-name "<LANDSCAPE_ACCOUNT_NAME>"
-              --url <LANDSCAPE_URL>
-              --ping-url <LANDSCAPE_URL>/ping
-              --silent
-            args:
-              creates: /etc/landscape/client.conf
       EOF
 
     # Create systemd service file

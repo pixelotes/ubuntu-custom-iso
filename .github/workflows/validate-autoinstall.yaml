@@ -1,0 +1,38 @@
+name: Validate Autoinstall Config
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate-autoinstall:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Clone Subiquity repository
+      run: |
+        git clone https://github.com/canonical/subiquity.git
+        cd subiquity
+
+    - name: Install dependencies
+      run: |
+        cd subiquity
+        make install_deps
+
+    - name: Validate autoinstall.yaml
+      run: |
+        cd subiquity
+        ./scripts/validate-autoinstall-user-data.py ../autoinstall.yaml
+
+    - name: Validation successful
+      run: echo "✅ Autoinstall configuration validated successfully!"

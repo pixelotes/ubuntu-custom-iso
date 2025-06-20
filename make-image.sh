@@ -13,7 +13,7 @@ LUKS_PASSWORD="mysupersecret"
 KEYBOARD_LAYOUT="en"
 LOCALE="en_US.UTF-8"
 COMPANY_NAME="MyCompany"
-UBUNTU_VERSION="24.04.2"
+UBUNTU_VERSION="24.04.1"
 TIMEZONE="Europe/London"
 ARCH="amd64"
 EDITION="desktop"
@@ -24,7 +24,7 @@ show_help() {
     echo "Create a custom Ubuntu ISO with specified options."
     echo
     echo "Options:"
-    echo "  --type TYPE              Set the installation type (minimal or full). Default: minimal"
+
     echo "  --lang LANG              Set the language (es or en). Default: en"
     echo "  --luks-password PASSWORD Set the LUKS encryption password. Default: mysupersecret"
     echo "  --keyboard-layout LAYOUT Set the keyboard layout. Default: en"
@@ -38,10 +38,11 @@ show_help() {
     echo "  --help                   Display this help message and exit"
     echo
     echo "Example:"
-    echo "  $0 --type full --lang es --luks-password mypassword --keyboard-layout es --locale es_ES.UTF-8 --timezone \"Europe/London\" --company-name Acme --ubuntu-version 22.04.3"
+    echo "  $0 --late-commands --lang es --luks-password mypassword --keyboard-layout es --locale es_ES.UTF-8 --timezone \"Europe/London\" --company-name Acme --ubuntu-version 22.04.3"
 }
 
 # Parse command line arguments
+echo "Parsing command line arguments..."
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --lang) LANG="$2"; shift ;;
@@ -52,13 +53,16 @@ while [[ "$#" -gt 0 ]]; do
         --ubuntu-version) UBUNTU_VERSION="$2"; shift ;;
         --timezone) TIMEZONE="$2"; shift ;;
         --arch) ARCH="$2"; shift ;;
-	--late-commands) TYPE="full"; shift ;;
+        --edition) EDITION="$2"; shift ;;
+        --late-commands) TYPE="full" ;;
         --help) show_help; exit 0 ;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
 done
 
+echo "Command line arguments parsed successfully."
+echo "Validating parameters"
 # Validate input
 if [[ ! "$EDITION" =~ ^(desktop|server)$ ]]; then
     echo "Invalid edition. Must be 'desktop' or 'server'."
@@ -70,7 +74,8 @@ if [[ ! "$ARCH" =~ ^(amd64|arm64|ppc64el)$ ]]; then
     exit 1
 fi
 
-set -x
+echo "Parameters validated successfully."
+echo "Creating custom Ubuntu ISO"
 
 # Basic parameters
 DEVICE="${COMPANY_NAME,,}"  # Convert to lowercase
@@ -92,13 +97,16 @@ GENISO_END_SECTOR="$(LANG=C fdisk -l ${RELEASE_ISO_FILENAME} |grep iso2 | cut -d
 
 UNPACKED_IMAGE_PATH="./unpacked-iso/"
 # Check if the Ubuntu release exists before downloading
-if ! wget --spider -q "${DOWNLOAD_URL}"; then
-    echo "Error: The specified Ubuntu release does not exist at ${DOWNLOAD_URL}"
-    exit 1
-fi
+#if ! wget --spider -q "${DOWNLOAD_URL}"; then
+#    echo "Error: The specified Ubuntu release does not exist at ${DOWNLOAD_URL}"
+#    #exit 1
+#fi
 
 if [ ! -f "${RELEASE_ISO_FILENAME}" ]; then
-        wget -q ${DOWNLOAD_URL} -O ${RELEASE_ISO_FILENAME}
+    if ! wget -q ${DOWNLOAD_URL} -O ${RELEASE_ISO_FILENAME}; then
+        echo "Couldn't download the Ubuntu image, please provide your own image with the name ${RELEASE_ISO_FILENAME} and try again"
+        exit 1
+    fi
 fi
 
 xorriso -osirrox on -indev  "${RELEASE_ISO_FILENAME}" -- -extract / "${UNPACKED_IMAGE_PATH}"
@@ -119,9 +127,6 @@ echo "$AUTOINSTALL_CONTENT" | sed -e "s/{{LUKS_PASSWORD}}/${LUKS_PASSWORD}/g" \
     -e "s/{{LOCALE}}/${LOCALE}/g" \
     -e "s/{{COMPANY_NAME}}/${COMPANY_NAME}/g" \
     -e "s|{{TIMEZONE}}|${TIMEZONE}|g" > "${UNPACKED_IMAGE_PATH}autoinstall.yaml"
-
-# Fix for the timezone, as it contains forward slashes
-#sed -e "s|{{TIMEZONE}}|\"${TIMEZONE}\"|g" "${UNPACKED_IMAGE_PATH}autoinstall.yaml" > "${UNPACKED_IMAGE_PATH}autoinstall2.yaml"
 
 # https://github.com/YasuhiroABE/ub-autoinstall-iso/blob/main/Makefile
 LANG=C xorriso -as mkisofs  \

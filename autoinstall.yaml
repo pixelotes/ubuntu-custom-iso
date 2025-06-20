@@ -7,15 +7,7 @@ autoinstall:
       name: lvm
       sizing-policy: all
       password: "{{LUKS_PASSWORD}}"
-  locale: "{{LOCALE}}"
-  codecs:
-    install: true
-  drivers:
-    install: true
-  oem:
-    install: true
-  kernel:
-    flavor: hwe
+  locale:  "{{LOCALE}}"
   keyboard:
     layout: "{{KEYBOARD_LAYOUT}}"
     variant: ""
@@ -23,9 +15,9 @@ autoinstall:
     update: false
   apt:
     preserve_sources_list: true
-  packages: []
-  snaps: []
-  updates: security
-  shutdown: poweroff
-  user-data: {}
-  
+  source:
+    id: ubuntu-desktop
+  shutdown: reboot
+  user-data:
+    users: ['']
+
