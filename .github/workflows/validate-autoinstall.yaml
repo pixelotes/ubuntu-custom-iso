@@ -19,6 +19,10 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Install Python build toold
+      run: |
+        pythom -m pip install --upgrade pip setuptools wheel
+
     - name: Clone Subiquity repository
       run: |
         git clone https://github.com/canonical/subiquity.git
