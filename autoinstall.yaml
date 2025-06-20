@@ -1,0 +1,23 @@
+#cloud-config
+autoinstall:
+  version: 1
+  timezone: "{{TIMEZONE}}"
+  storage:
+    layout:
+      name: lvm
+      sizing-policy: all
+      password: "{{LUKS_PASSWORD}}"
+  locale:  "{{LOCALE}}"
+  keyboard:
+    layout: "{{KEYBOARD_LAYOUT}}"
+    variant: ""
+  refresh-installer:
+    update: false
+  apt:
+    preserve_sources_list: true
+  source:
+    id: ubuntu-desktop
+  shutdown: reboot
+  user-data:
+    users: ['']
+

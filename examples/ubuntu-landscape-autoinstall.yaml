@@ -1,0 +1,33 @@
+#cloud-config
+autoinstall:
+  version: 1
+  timezone: "{{TIMEZONE}}"
+  identity:
+    username: "jdoe"
+    # To generate a random password, use the following command:
+    # printf 'mypass' | openssl passwd -6 -salt 'mysalt' -stdin
+    password: "$6$mysalt$hfk3rJdQ6OHfGsqZ./zZwSr4I0ax2/tCLLtWjXZYu6kK7mV2rdUL3/K3OAn2ZBkFGuOdkaMlsBSj7zGC6WeY.0"
+    realname: "John Doe"
+    hostname: "ubuntu-laptop"
+  storage:
+    layout:
+      name: direct
+  locale:  "{{LOCALE}}"
+  keyboard:
+    layout: "{{KEYBOARD_LAYOUT}}"
+    variant: ""
+  refresh-installer:
+    update: true
+    channel: latest/edge
+  apt:
+    preserve_sources_list: true
+  shutdown: reboot
+  user-data:
+    landscape:
+      client:
+        enable: true
+        server: "https://landscape.example.com"
+        registration-key: "{{LANDSCAPE_REGISTRATION_KEY}}"
+        proxy: "http://proxy.example.com:8080"
+        ca-certificates:
+          - "/etc/ssl/certs/landscape-ca.crt"
