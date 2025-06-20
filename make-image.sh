@@ -98,11 +98,13 @@ GENISO_END_SECTOR="$(LANG=C fdisk -l ${RELEASE_ISO_FILENAME} |grep iso2 | cut -d
 UNPACKED_IMAGE_PATH="./unpacked-iso/"
 
 echo "Checking if $RELEASE_ISO_FILENAME exists..."
+
 if [ -f "${RELEASE_ISO_FILENAME}" ]; then
     echo "Found ${RELEASE_ISO_FILENAME} in the current directory."
 else
     echo "File ${RELEASE_ISO_FILENAME} not found. Trying to download..."
-    if ! wget -q ${DOWNLOAD_URL} -O ${RELEASE_ISO_FILENAME}; then
+    
+    if ! wget --progress=bar:force --show-progress "${DOWNLOAD_URL}" -O "${RELEASE_ISO_FILENAME}"; then
         echo "Couldn't download the Ubuntu image, please provide your own image with the name ${RELEASE_ISO_FILENAME} and try again"
         exit 1
     else
