@@ -1,0 +1,21 @@
+#cloud-config
+autoinstall:
+  version: 1
+  timezone: "{{TIMEZONE}}"
+  storage:
+    layout:
+      name: direct
+  locale:  "{{LOCALE}}"
+  keyboard:
+    layout: "{{KEYBOARD_LAYOUT}}"
+    variant: ""
+  refresh-installer:
+    update: true
+  apt:
+    preserve_sources_list: true
+  source:
+    id: ubuntu-desktop
+  shutdown: reboot
+  user-data:
+    users: ['']
+
