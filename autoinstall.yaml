@@ -1,5 +1,5 @@
 #cloud-config
-autoinstall:
+autoinstal:
   version: 1
   timezone: "{{TIMEZONE}}"
   storage:
@@ -20,3 +20,4 @@ autoinstall:
   shutdown: reboot
   user-data:
     users: ['']
+
