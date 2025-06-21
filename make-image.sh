@@ -83,7 +83,6 @@ DEVICE="${COMPANY_NAME,,}"  # Convert to lowercase
 # Parse version components
 if [[ "$UBUNTU_VERSION" =~ ^([0-9]+\.[0-9]+)(\.[0-9]+)?$ ]]; then
     UBUNTU_RELEASE="${BASH_REMATCH[1]}"
-    UBUNTU_POINT_RELEASE="${BASH_REMATCH[2]:-}"
 else
     echo "Invalid Ubuntu version format. Expected format: XX.YY or XX.YY.Z (e.g., 24.04 or 24.04.2)"
     exit 1
@@ -110,7 +109,7 @@ else
         echo "Couldn't download the Ubuntu image, please provide your own image with the name ${RELEASE_ISO_FILENAME} and try again"
         if [ -f "${RELEASE_ISO_FILENAME}" ]; then
             # Remove the 0-byte file if it exists
-            rm $RELEASE_ISO_FILENAME
+            rm "$RELEASE_ISO_FILENAME"
         fi
         exit 1
     else
@@ -137,8 +136,8 @@ echo "$AUTOINSTALL_CONTENT" | sed -e "s/{{LUKS_PASSWORD}}/${LUKS_PASSWORD}/g" \
     -e "s/{{COMPANY_NAME}}/${COMPANY_NAME}/g" \
     -e "s|{{TIMEZONE}}|${TIMEZONE}|g" > "${UNPACKED_IMAGE_PATH}autoinstall.yaml"
 
-GENISO_START_SECTOR="$(LANG=C fdisk -l ${RELEASE_ISO_FILENAME} |grep iso2 | cut -d' ' -f2)"
-GENISO_END_SECTOR="$(LANG=C fdisk -l ${RELEASE_ISO_FILENAME} |grep iso2 | cut -d' ' -f3)"
+GENISO_START_SECTOR="$(LANG=C fdisk -l "${RELEASE_ISO_FILENAME}" |grep iso2 | cut -d' ' -f2)"
+GENISO_END_SECTOR="$(LANG=C fdisk -l "${RELEASE_ISO_FILENAME}" |grep iso2 | cut -d' ' -f3)"
 GENISO_BOOTIMG="boot/grub/i386-pc/eltorito.img"
 GENISO_BOOTCATALOG="/boot.catalog"
 
@@ -150,7 +149,7 @@ LANG=C xorriso -as mkisofs  \
 	-eltorito-catalog "${GENISO_BOOTCATALOG}" -no-emul-boot \
 	-boot-load-size 4 -boot-info-table -eltorito-alt-boot \
 	-no-emul-boot -isohybrid-gpt-basdat \
-	-append_partition 2 28732ac11ff8d211ba4b00a0c93ec93b --interval:local_fs:${GENISO_START_SECTOR}d-${GENISO_END_SECTOR}d::"${RELEASE_ISO_FILENAME}" \
+	-append_partition 2 28732ac11ff8d211ba4b00a0c93ec93b --interval:local_fs:"${GENISO_START_SECTOR}"d-"${GENISO_END_SECTOR}"d::"${RELEASE_ISO_FILENAME}" \
 	-e '--interval:appended_partition_2_start_1782357s_size_8496d:all::' \
 	--grub2-mbr --interval:local_fs:0s-15s:zero_mbrpt,zero_gpt:"${RELEASE_ISO_FILENAME}" \
 	"${UNPACKED_IMAGE_PATH}"

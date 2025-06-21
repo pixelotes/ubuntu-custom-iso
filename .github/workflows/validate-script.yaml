@@ -1,0 +1,16 @@
+name: Shell Script Linter
+
+on: [push, pull_request]
+
+jobs:
+  lint-shell-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: shellcheck make-image.sh
