@@ -1,5 +1,5 @@
 #cloud-config
-autoinstal:
+autoinstall:
   version: 1
   timezone: "{{TIMEZONE}}"
   storage:
