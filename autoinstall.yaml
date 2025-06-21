@@ -20,4 +20,3 @@ autoinstall:
   shutdown: reboot
   user-data:
     users: ['']
-
