@@ -141,18 +141,49 @@ GENISO_END_SECTOR="$(LANG=C fdisk -l "${RELEASE_ISO_FILENAME}" |grep iso2 | cut 
 GENISO_BOOTIMG="boot/grub/i386-pc/eltorito.img"
 GENISO_BOOTCATALOG="/boot.catalog"
 
-# https://github.com/YasuhiroABE/ub-autoinstall-iso/blob/main/Makefile
-LANG=C xorriso -as mkisofs  \
-	-V "${COMPANY_NAME} OEM Ubuntu Install" \
-	-output "$CUSTOM_ISO_FILENAME"  \
-	-eltorito-boot "${GENISO_BOOTIMG}" \
-	-eltorito-catalog "${GENISO_BOOTCATALOG}" -no-emul-boot \
-	-boot-load-size 4 -boot-info-table -eltorito-alt-boot \
-	-no-emul-boot -isohybrid-gpt-basdat \
-	-append_partition 2 28732ac11ff8d211ba4b00a0c93ec93b --interval:local_fs:"${GENISO_START_SECTOR}"d-"${GENISO_END_SECTOR}"d::"${RELEASE_ISO_FILENAME}" \
-	-e '--interval:appended_partition_2_start_1782357s_size_8496d:all::' \
-	--grub2-mbr --interval:local_fs:0s-15s:zero_mbrpt,zero_gpt:"${RELEASE_ISO_FILENAME}" \
-	"${UNPACKED_IMAGE_PATH}"
+if [[ "$ARCH" == "amd64" ]]; then
+    GENISO_START_SECTOR="$(LANG=C fdisk -l "${RELEASE_ISO_FILENAME}" |grep iso2 | cut -d' ' -f2)"
+    GENISO_END_SECTOR="$(LANG=C fdisk -l "${RELEASE_ISO_FILENAME}" |grep iso2 | cut -d' ' -f3)"
+    GENISO_BOOTIMG="boot/grub/i386-pc/eltorito.img"
+    GENISO_BOOTCATALOG="/boot.catalog"
+
+    if [ ! -f "${UNPACKED_IMAGE_PATH}${GENISO_BOOTIMG}" ]; then
+        echo "Error: ${GENISO_BOOTIMG} not found. This ISO may not support El Torito boot."
+        exit 1
+    fi
+
+    LANG=C xorriso -as mkisofs  \
+        -V "${COMPANY_NAME} OEM Ubuntu Install" \
+        -output "$CUSTOM_ISO_FILENAME"  \
+        -eltorito-boot "${GENISO_BOOTIMG}" \
+        -eltorito-catalog "${GENISO_BOOTCATALOG}" -no-emul-boot \
+        -boot-load-size 4 -boot-info-table -eltorito-alt-boot \
+        -no-emul-boot -isohybrid-gpt-basdat \
+        -append_partition 2 28732ac11ff8d211ba4b00a0c93ec93b --interval:local_fs:"${GENISO_START_SECTOR}"d-"${GENISO_END_SECTOR}"d::"${RELEASE_ISO_FILENAME}" \
+        -e '--interval:appended_partition_2_start_1782357s_size_8496d:all::' \
+        --grub2-mbr --interval:local_fs:0s-15s:zero_mbrpt,zero_gpt:"${RELEASE_ISO_FILENAME}" \
+        "${UNPACKED_IMAGE_PATH}"
+
+elif [[ "$ARCH" == "arm64" ]]; then
+    EFI_BOOT_FILE=$(find "${UNPACKED_IMAGE_PATH}EFI/BOOT" -iname "bootaa64.efi" | head -n1)
+
+    if [[ -z "$EFI_BOOT_FILE" ]]; then
+        echo "Error: EFI boot file (bootaa64.efi) not found. Unable to build ARM64 ISO."
+        exit 1
+    fi
+
+    LANG=C xorriso -as mkisofs \
+        -V "${COMPANY_NAME} OEM Ubuntu ARM Install" \
+        -output "$CUSTOM_ISO_FILENAME" \
+        -efi-boot "$(realpath --relative-to="${UNPACKED_IMAGE_PATH}" "$EFI_BOOT_FILE")" \
+        -no-emul-boot \
+        -isohybrid-gpt-basdat \
+        "${UNPACKED_IMAGE_PATH}"
+
+else
+    echo "Unsupported architecture: $ARCH"
+    exit 1
+fi
 
 # Cleanup
 rm -r ./unpacked-iso
