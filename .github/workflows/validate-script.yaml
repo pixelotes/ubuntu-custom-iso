@@ -1,6 +1,12 @@
 name: Shell Script Linter
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - 'make-image.sh'
+  pull_request:
+    paths:
+      - 'make-image.sh'
 
 jobs:
   lint-shell-script:
